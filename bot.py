@@ -6,7 +6,7 @@ from telegram.error import TelegramError
 
 # ===== CONFIG =====
 BOT_TOKEN = "8839560847:AAF3IeRKYVerZUUHYV_ZgfItdm4BPEhcBYk"
-CHANNEL_ID = "@CC428Kurd"
+CHANNEL_ID = "@‏Cc428Kurd"
 ADMIN_ID = 6395195181
 INTERVAL_SECONDS = 2
 # ==============================================
