@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import os
-import random
 from telegram import Bot
 from telegram.error import TelegramError
 
@@ -12,47 +11,163 @@ ADMIN_ID = 6395195181
 INTERVAL_SECONDS = 2
 # ==============================================
 
-# داتای بانک و وڵات بۆ هەر BIN (6 ژمارەی سەرەتا)
+# داتابەیسێکی تەواو بۆ زیاتر لە 60 بانک و وڵات (بەپێی BIN)
 BIN_DATABASE = {
-    # Visa - India
-    "414582": {"bank": "ICICI BANK LTD", "country": "India 🇮🇳"},
-    "401717": {"bank": "HDFC Bank", "country": "India 🇮🇳"},
-    "519522": {"bank": "HSBC", "country": "India 🇮🇳"},
-    # Visa - USA
-    "410282": {"bank": "JPMorgan Chase", "country": "USA 🇺🇸"},
+    # ---- USA 🇺🇸 ----
+    "410282": {"bank": "JPMorgan Chase Bank", "country": "USA 🇺🇸"},
     "408139": {"bank": "Bank of America", "country": "USA 🇺🇸"},
-    # Mastercard - UK
-    "539811": {"bank": "Barclays", "country": "United Kingdom 🇬🇧"},
+    "414842": {"bank": "Wells Fargo", "country": "USA 🇺🇸"},
+    "426548": {"bank": "Citibank", "country": "USA 🇺🇸"},
+    "477028": {"bank": "Discover", "country": "USA 🇺🇸"},
+    "402935": {"bank": "American Express", "country": "USA 🇺🇸"},
+    "462436": {"bank": "U.S. Bank", "country": "USA 🇺🇸"},
+    "534862": {"bank": "Capital One", "country": "USA 🇺🇸"},
+    "470136": {"bank": "PNC Bank", "country": "USA 🇺🇸"},
+
+    # ---- United Kingdom 🇬🇧 ----
+    "539811": {"bank": "Barclays Bank", "country": "United Kingdom 🇬🇧"},
     "513143": {"bank": "Lloyds Bank", "country": "United Kingdom 🇬🇧"},
-    # Visa - Canada
+    "549041": {"bank": "HSBC UK", "country": "United Kingdom 🇬🇧"},
+    "554702": {"bank": "NatWest", "country": "United Kingdom 🇬🇧"},
+    "555384": {"bank": "Santander UK", "country": "United Kingdom 🇬🇧"},
+    "481446": {"bank": "Nationwide", "country": "United Kingdom 🇬🇧"},
+    "564111": {"bank": "Monzo", "country": "United Kingdom 🇬🇧"},
+
+    # ---- Canada 🇨🇦 ----
     "418251": {"bank": "Royal Bank of Canada", "country": "Canada 🇨🇦"},
-    "406933": {"bank": "Toronto-Dominion Bank", "country": "Canada 🇨🇦"},
-    # Mastercard - UAE
+    "406933": {"bank": "TD Bank", "country": "Canada 🇨🇦"},
+    "451083": {"bank": "Scotiabank", "country": "Canada 🇨🇦"},
+    "486559": {"bank": "Bank of Montreal", "country": "Canada 🇨🇦"},
+    "486109": {"bank": "CIBC", "country": "Canada 🇨🇦"},
+
+    # ---- India 🇮🇳 ----
+    "414582": {"bank": "ICICI Bank", "country": "India 🇮🇳"},
+    "401717": {"bank": "HDFC Bank", "country": "India 🇮🇳"},
+    "519522": {"bank": "Axis Bank", "country": "India 🇮🇳"},
+    "417431": {"bank": "State Bank of India", "country": "India 🇮🇳"},
+    "453253": {"bank": "Kotak Mahindra", "country": "India 🇮🇳"},
+    "454784": {"bank": "Yes Bank", "country": "India 🇮🇳"},
+    "484578": {"bank": "IndusInd Bank", "country": "India 🇮🇳"},
+
+    # ---- UAE 🇦🇪 ----
     "512252": {"bank": "Emirates NBD", "country": "UAE 🇦🇪"},
     "518414": {"bank": "Abu Dhabi Commercial Bank", "country": "UAE 🇦🇪"},
-    # نەگۆڕی باشتر
-    "513397": {"bank": "Standard Chartered", "country": "Singapore 🇸🇬"},
+    "554809": {"bank": "Dubai Islamic Bank", "country": "UAE 🇦🇪"},
+    "542252": {"bank": "Abu Dhabi Islamic Bank", "country": "UAE 🇦🇪"},
+
+    # ---- Germany 🇩🇪 ----
+    "504435": {"bank": "Deutsche Bank", "country": "Germany 🇩🇪"},
+    "514339": {"bank": "Commerzbank", "country": "Germany 🇩🇪"},
+    "506425": {"bank": "Sparkasse", "country": "Germany 🇩🇪"},
+
+    # ---- France 🇫🇷 ----
     "509431": {"bank": "BNP Paribas", "country": "France 🇫🇷"},
+    "402891": {"bank": "Société Générale", "country": "France 🇫🇷"},
+    "406976": {"bank": "Crédit Agricole", "country": "France 🇫🇷"},
+
+    # ---- Australia 🇦🇺 ----
+    "541722": {"bank": "Commonwealth Bank", "country": "Australia 🇦🇺"},
+    "482878": {"bank": "Westpac", "country": "Australia 🇦🇺"},
+    "483396": {"bank": "ANZ", "country": "Australia 🇦🇺"},
+    "493423": {"bank": "NAB", "country": "Australia 🇦🇺"},
+
+    # ---- Italy 🇮🇹 ----
+    "402397": {"bank": "Intesa Sanpaolo", "country": "Italy 🇮🇹"},
+    "514454": {"bank": "UniCredit", "country": "Italy 🇮🇹"},
+    "402153": {"bank": "Banca Monte dei Paschi", "country": "Italy 🇮🇹"},
+
+    # ---- Spain 🇪🇸 ----
+    "453518": {"bank": "Santander", "country": "Spain 🇪🇸"},
+    "455615": {"bank": "BBVA", "country": "Spain 🇪🇸"},
+    "478753": {"bank": "CaixaBank", "country": "Spain 🇪🇸"},
+
+    # ---- Turkey 🇹🇷 ----
+    "512343": {"bank": "Garanti BBVA", "country": "Turkey 🇹🇷"},
+    "518837": {"bank": "Türkiye İş Bankası", "country": "Turkey 🇹🇷"},
+    "426694": {"bank": "Akbank", "country": "Turkey 🇹🇷"},
+
+    # ---- Saudi Arabia 🇸🇦 ----
+    "502369": {"bank": "Al Rajhi Bank", "country": "Saudi Arabia 🇸🇦"},
+    "480178": {"bank": "Bank AlJazira", "country": "Saudi Arabia 🇸🇦"},
+    "531066": {"bank": "Riyad Bank", "country": "Saudi Arabia 🇸🇦"},
+
+    # ---- Mexico 🇲🇽 ----
+    "415988": {"bank": "Banamex (Citigroup)", "country": "Mexico 🇲🇽"},
+    "476600": {"bank": "Banorte", "country": "Mexico 🇲🇽"},
+
+    # ---- Japan 🇯🇵 ----
+    "454784": {"bank": "MUFG Bank", "country": "Japan 🇯🇵"},
+    "554285": {"bank": "Sumitomo Mitsui", "country": "Japan 🇯🇵"},
+    "528901": {"bank": "Mizuho Bank", "country": "Japan 🇯🇵"},
+
+    # ---- South Africa 🇿🇦 ----
+    "460210": {"bank": "Standard Bank", "country": "South Africa 🇿🇦"},
+    "505323": {"bank": "Nedbank", "country": "South Africa 🇿🇦"},
+
+    # ---- South Korea 🇰🇷 ----
+    "467524": {"bank": "KB Kookmin Bank", "country": "South Korea 🇰🇷"},
+    "469214": {"bank": "Shinhan Bank", "country": "South Korea 🇰🇷"},
+
+    # ---- Brazil 🇧🇷 ----
+    "514329": {"bank": "Banco do Brasil", "country": "Brazil 🇧🇷"},
+    "493060": {"bank": "Itaú Unibanco", "country": "Brazil 🇧🇷"},
+
+    # ---- Sweden 🇸🇪 ----
+    "505759": {"bank": "SEB", "country": "Sweden 🇸🇪"},
+    "504965": {"bank": "Swedbank", "country": "Sweden 🇸🇪"},
+
+    # ---- Norway 🇳🇴 ----
+    "514771": {"bank": "DNB", "country": "Norway 🇳🇴"},
+    "509488": {"bank": "SpareBank 1", "country": "Norway 🇳🇴"},
+
+    # ---- Denmark 🇩🇰 ----
+    "514974": {"bank": "Danske Bank", "country": "Denmark 🇩🇰"},
+    "541722": {"bank": "Nordea", "country": "Denmark 🇩🇰"},
+
+    # ---- Switzerland 🇨🇭 ----
+    "416687": {"bank": "UBS", "country": "Switzerland 🇨🇭"},
+    "417547": {"bank": "Credit Suisse", "country": "Switzerland 🇨🇭"},
+
+    # ---- Netherlands 🇳🇱 ----
+    "406681": {"bank": "ING Netherlands", "country": "Netherlands 🇳🇱"},
+    "512500": {"bank": "ABN AMRO", "country": "Netherlands 🇳🇱"},
+
+    # ---- Thailand 🇹🇭 ----
+    "540534": {"bank": "Bangkok Bank", "country": "Thailand 🇹🇭"},
+    "516543": {"bank": "Kasikorn Bank", "country": "Thailand 🇹🇭"},
+
+    # ---- Indonesia 🇮🇩 ----
+    "477320": {"bank": "Bank Mandiri", "country": "Indonesia 🇮🇩"},
+    "510713": {"bank": "BCA", "country": "Indonesia 🇮🇩"},
+
+    # ---- Malaysia 🇲🇾 ----
+    "502155": {"bank": "Maybank", "country": "Malaysia 🇲🇾"},
+    "504498": {"bank": "CIMB Bank", "country": "Malaysia 🇲🇾"},
+
+    # ---- China 🇨🇳 ----
+    "547556": {"bank": "Bank of China", "country": "China 🇨🇳"},
+    "403052": {"bank": "ICBC", "country": "China 🇨🇳"},
 }
 
 def get_card_details(card_number):
     bin_num = card_number[:6]
     if bin_num in BIN_DATABASE:
         return BIN_DATABASE[bin_num]
-    # ئەگەر BIN نەناسرا، گەڕانەوە بۆ شتێکی گشتی
     if card_number.startswith('4'):
-        return {"bank": "Visa Bank", "country": "International 🌍"}
+        return {"bank": "Visa International", "country": "Global 🌍"}
     elif card_number.startswith('5'):
-        return {"bank": "Mastercard Bank", "country": "International 🌍"}
+        return {"bank": "Mastercard International", "country": "Global 🌍"}
+    elif card_number.startswith('3'):
+        return {"bank": "Amex International", "country": "Global 🌍"}
     else:
-        return {"bank": "Credit Bank", "country": "International 🌍"}
+        return {"bank": "Unknown Bank", "country": "Unknown 🌍"}
 
 # خوێندنەوەی کارتەکان
 try:
     if os.path.exists('cards.txt'):
         with open('cards.txt', 'r', encoding='utf-8') as f:
             RAW_CARDS = [line.strip() for line in f if line.strip()]
-        print(f"✅ Loaded {len(RAW_CARDS)} cards")
+        print(f"✅ Loaded {len(RAW_CARDS)} cards from cards.txt")
     else:
         RAW_CARDS = []
         print("⚠️ cards.txt not found!")
@@ -65,7 +180,12 @@ async def send_card_message(bot, channel, admin):
     global current_index
     
     if not RAW_CARDS:
-        await bot.send_message(chat_id=admin, text="❌ No cards in file.")
+        await bot.send_message(chat_id=admin, text="❌ No cards found in file.")
+        return False
+    
+    if current_index >= len(RAW_CARDS):
+        await bot.send_message(chat_id=admin, text="✅ All cards sent! Bot is stopping now.")
+        print("✅ All cards sent successfully.")
         return False
     
     card_line = RAW_CARDS[current_index]
@@ -77,11 +197,10 @@ async def send_card_message(bot, channel, admin):
         year = parts[2].strip()
         cvv = parts[3].strip()
     else:
-        await bot.send_message(chat_id=admin, text=f"❌ Error in: {card_line}")
+        await bot.send_message(chat_id=admin, text=f"❌ Error in line: {card_line}")
         current_index += 1
         return False
     
-    # دۆزینەوەی زانیاری بانک و وڵات بۆ ئەم کارتە
     details = get_card_details(card_number)
     bank = details['bank']
     country = details['country']
@@ -89,14 +208,14 @@ async def send_card_message(bot, channel, admin):
     
     text = (
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"● Warnisx Scrapper by @About_Warnisx\n"
+        f"● rojAmedi2 Scrapper by @warven_24\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"● CC: {card_number} | {month}/{year} | {cvv}\n"
         f"● BIN: {bin_num}\n"
         f"● Bank: {bank}\n"
         f"● Country: {country}\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"Developed By @Warnisx"
+        f"Developed By @warven_24"
     )
 
     try:
@@ -105,9 +224,6 @@ async def send_card_message(bot, channel, admin):
         print(f"✅ Sent: {card_number}")
         
         current_index += 1
-        if current_index >= len(RAW_CARDS):
-            current_index = 0  # دەست پێبکەوە لە سەرەتا
-        
         return True
     except TelegramError as e:
         await bot.send_message(chat_id=admin, text=f"❌ Error: {e}")
@@ -122,7 +238,9 @@ async def main():
         return
     
     while True:
-        await send_card_message(bot, CHANNEL_ID, ADMIN_ID)
+        result = await send_card_message(bot, CHANNEL_ID, ADMIN_ID)
+        if not result:
+            break
         await asyncio.sleep(INTERVAL_SECONDS)
 
 if __name__ == "__main__":
