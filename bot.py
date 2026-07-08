@@ -9,9 +9,6 @@ BOT_TOKEN = "8839560847:AAF3IeRKYVerZUUHYV_ZgfItdm4BPEhcBYk"
 CHANNEL_ID = "@CC428Kurd"
 ADMIN_ID = 6395195181
 INTERVAL_SECONDS = 2
-
-# ڕێگای وێنەکە (وێنەی ئاسمان)
-IMAGE_URL = "https://raw.githubusercontent.com/CC428Kurd/KURDISTAN/main/sky.jpg"
 # ==============================================
 
 BIN_DATABASE = {
@@ -151,7 +148,7 @@ async def send_card_message(bot, channel, admin):
     country = details['country']
     bin_num = card_number[:6]
     
-    # فۆرماتی دەق (ناوەکان گۆڕدراون)
+    # تەنها دەق، وێنە لابراوە
     text = (
         f"KURD SCRAPPER\n"
         f"------------------------\n"
@@ -165,7 +162,8 @@ async def send_card_message(bot, channel, admin):
     )
 
     try:
-        await bot.send_photo(chat_id=channel, photo=IMAGE_URL, caption=text)
+        # تەنها send_message بەکاردەهێنین (وێنە نانێرێت)
+        await bot.send_message(chat_id=channel, text=text)
         await bot.send_message(chat_id=admin, text=f"✅ Sent ({current_index+1}/{len(RAW_CARDS)})")
         print(f"✅ Sent: {card_number}")
         
