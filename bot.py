@@ -6,7 +6,7 @@ from telegram.error import TelegramError
 
 # ===== CONFIG =====
 BOT_TOKEN = "8839560847:AAF3IeRKYVerZUUHYV_ZgfItdm4BPEhcBYk"
-CHANNEL_ID = "@hamody_up4"
+CHANNEL_ID = "@CC428Kurd"
 ADMIN_ID = 6395195181
 CARD_DATA = {
     "number": "4095131982174501",
