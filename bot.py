@@ -30,14 +30,14 @@ def send_card_message(bot, channel, admin):
             f"Scrapper: Hamody")
     
     try:
-        msg =await bot.send_message(chat_id=channel, text=text)
+        mmsg = await bot.send_message(chat_id=channel, text=...)
        await bot.send_message(chat_id=admin, text=f"[SUCCESS] ..."Sent to {channel}\nMsg ID: {msg.message_id}")
         return True
     except TelegramError as e:
         await bot.send_message(chat_id=admin, text=f"[ERROR] {str(e)}")
         return False
 
-jjkjjasync def main():
+async def main():
     bot = Bot(token=BOT_TOKEN)
     try: jl
         bot.get_me()
@@ -48,7 +48,7 @@ jjkjjasync def main():
     while True:
         success =await send_card_message(bot, CHANNEL_ID, ADMIN_ID)
         delay = INTERVAL_SECONDS * random.uniform(0.9, 1.1)
-        time.sleep(delay)
+        await asyncio.sleep(delay)
 
 if __name__ == "__main__":
     main()
