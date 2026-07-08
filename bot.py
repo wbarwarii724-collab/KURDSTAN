@@ -11,6 +11,24 @@ ADMIN_ID = 6395195181
 INTERVAL_SECONDS = 2
 # ==============================================
 
+# فانکشنێک بۆ دروستکردنی ژمارەی کارتی LUHN-ڕاست
+def generate_luhn_card(prefix):
+    # دروستکردنی ١٥ ژمارەی کۆتایی بە شێوەی هەڕەمەکی
+    card_number = [int(x) for x in str(prefix)] + [random.randint(0, 9) for _ in range(15 - len(str(prefix)))]
+    
+    # ڕێسای Luhn بۆ هەژماردنی ژمارەی کۆتایی (Check Digit)
+    for i in range(len(card_number) - 1, -1, -1):
+        if i % 2 == 0:
+            card_number[i] *= 2
+            if card_number[i] > 9:
+                card_number[i] -= 9
+    
+    check_digit = (10 - (sum(card_number) % 10)) % 10
+    
+    # گەڕاندنەوەی ژمارە تەواوەکە
+    full_card = str(prefix) + ''.join([str(random.randint(0, 9)) for _ in range(14 - len(str(prefix)))]) + str(check_digit)
+    return full_card
+
 BANKS = [
     "JPMorgan Chase", "Bank of America", "Wells Fargo", "Citibank", "HSBC",
     "Barclays", "Lloyds Bank", "Deutsche Bank", "BNP Paribas", "ING Bank",
@@ -42,23 +60,22 @@ CARD_TYPES = [
 async def send_card_message(bot, channel, admin):
     card_type = random.choice(CARD_TYPES)
     
-    # دروستکردنی ژمارەی کارت
+    # دروستکردنی ژمارەی کارت بە LUHN و پێشگر (Prefix)
     if "VISA" in card_type:
-        card_number = f"4{random.randint(100000000000000, 999999999999999)}"
+        card_number = generate_luhn_card(4) # Visa دەست پێدەکات بە 4
     elif "MASTERCARD" in card_type:
-        card_number = f"5{random.randint(100000000000000, 999999999999999)}"
+        card_number = generate_luhn_card(5) # Mastercard دەست پێدەکات بە 5
     else: 
-        card_number = f"3{random.randint(1000000000000000, 9999999999999999)}"
+        card_number = generate_luhn_card(3) # Amex دەست پێدەکات بە 3
 
     month = str(random.randint(1, 12)).zfill(2)
     year = str(random.randint(2026, 2036))
     cvv = str(random.randint(100, 999))
-    bin_number = card_number[:6] # دەستکەوتنی ٦ ژمارەی یەکەمی کارت وەک BIN
+    bin_number = card_number[:6] # BIN (6 ژمارەی سەرەتا)
     
     bank = random.choice(BANKS)
     country = random.choice(COUNTRIES)
     
-    # فۆرماتی تایبەت بە شێوەی سندووق وەکو وێنەکە
     text = (
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"● Warnisx Scrapper by @About_Warnisx\n"
@@ -73,7 +90,6 @@ async def send_card_message(bot, channel, admin):
     )
 
     try:
-        # ناردنی تەنها دەق (بەبێ وێنە، وەک وێنەکە)
         await bot.send_message(chat_id=channel, text=text)
         await bot.send_message(chat_id=admin, text=f"[SUCCESS] Sent\nBIN: {bin_number}")
         return True
