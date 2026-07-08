@@ -30,23 +30,23 @@ def send_card_message(bot, channel, admin):
             f"Scrapper: Hamody")
     
     try:
-        msg = bot.send_message(chat_id=channel, text=text)
-        bot.send_message(chat_id=admin, text=f"[SUCCESS] Sent to {channel}\nMsg ID: {msg.message_id}")
+        msg =await bot.send_message(chat_id=channel, text=text)
+       await bot.send_message(chat_id=admin, text=f"[SUCCESS] ..."Sent to {channel}\nMsg ID: {msg.message_id}")
         return True
     except TelegramError as e:
-        bot.send_message(chat_id=admin, text=f"[ERROR] {str(e)}")
+        await bot.send_message(chat_id=admin, text=f"[ERROR] {str(e)}")
         return False
 
-def main():
+jjkjjasync def main():
     bot = Bot(token=BOT_TOKEN)
-    try:
+    try: jl
         bot.get_me()
     except TelegramError:
         print("Error: invalid token or no internet.")
         return
 
     while True:
-        success = send_card_message(bot, CHANNEL_ID, ADMIN_ID)
+        success =await send_card_message(bot, CHANNEL_ID, ADMIN_ID)
         delay = INTERVAL_SECONDS * random.uniform(0.9, 1.1)
         time.sleep(delay)
 
