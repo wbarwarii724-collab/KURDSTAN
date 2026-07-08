@@ -4,45 +4,50 @@ import logging
 from telegram import Bot
 from telegram.error import TelegramError
 
-# ===== CONFIG =====
+# ==================== ڕێکخستنەکان ====================
+# تۆکنی بۆتەکەت
 BOT_TOKEN = "8941847443:AAF78KW48MF93ntjK8ROGanD1TiEzc4O1_Q"
-SOURCE_CHANNEL = "@hamody_up4"
-TARGET_CHANNEL = "@Cc428Kurd"
-INTERVAL_SECONDS = 3
-# ==============================================
 
-# چالاککردنی لۆگەکان بۆ دۆزینەوەی هەڵەکان
+# کەناڵی سەرچاوە (ئەمە گۆڕدرا بۆ WarnisxCcScrap)
+SOURCE_CHANNEL = "@WarnisxCcScrap"
+
+# کەناڵی ئامانج (پەیامەکان دەنێردرێن بۆ ئەم کەناڵە)
+TARGET_CHANNEL = "@Cc428Kurd"
+
+# ماوەی چاوەڕوانی لە نێوان هەر پەیامێکدا
+INTERVAL_SECONDS = 3
+# ======================================================
+
 logging.basicConfig(level=logging.INFO)
 
 async def copy_and_send(bot, source, target):
     try:
-        logging.info("Checking for new messages...")
+        logging.info("⏳ چاوەڕوانی پەیامی نوێ...")
         updates = await bot.get_updates()
         
         if updates and updates[-1].channel_post:
             last_post = updates[-1].channel_post
-            logging.info(f"Found a post: {last_post.message_id}")
+            logging.info(f"✅ پەیامێک دۆزرایەوە: {last_post.message_id}")
             
-            # ناردنی وێنە ئەگەر هەبێت
             if last_post.photo:
                 file_id = last_post.photo[-1].file_id
                 caption = last_post.caption or ""
                 await bot.send_photo(chat_id=target, photo=file_id, caption=caption)
-                logging.info(f"✅ Photo + text sent to {target}!")
+                logging.info(f"📸 وێنە + دەق نێردرا بۆ {target}!")
             
-            # ناردنی دەق ئەگەر وێنە نەبێت
             elif last_post.text:
                 await bot.send_message(chat_id=target, text=last_post.text)
-                logging.info(f"✅ Text sent to {target}!")
+                logging.info(f"📝 دەق نێردرا بۆ {target}!")
+            
             else:
-                logging.warning("⚠️ No photo or text found in the post.")
+                logging.warning("⚠️ پەیامەکە نە وێنەی تێدابوو نە دەق.")
         else:
-            logging.info("📭 No new messages found.")
+            logging.info("📭 هیچ پەیامێکی نوێ نەدۆزرایەوە.")
             
     except TelegramError as e:
-        logging.error(f"❌ Telegram Error: {e}")
+        logging.error(f"❌ هەڵەی تەلەگرام: {e}")
     except Exception as e:
-        logging.error(f"❌ General Error: {e}")
+        logging.error(f"❌ هەڵەی گشتی: {e}")
 
 async def main():
     bot = Bot(token=BOT_TOKEN)
