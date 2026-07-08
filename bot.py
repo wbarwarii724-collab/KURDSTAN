@@ -8,7 +8,7 @@ from telegram.error import TelegramError
 BOT_TOKEN = "8839560847:AAF3IeRKYVerZUUHYV_ZgfItdm4BPEhcBYk"
 CHANNEL_ID = "@Cc428Kurd"
 ADMIN_ID = 6395195181
-INTERVAL_SECONDS = 2
+INTERVAL_SECONDS = 5  # گۆڕدرا بۆ ٥ چرکە
 # ==============================================
 
 # داتابەیسێکی تەواو بۆ زیاتر لە 200 بانک و 150 وڵات
