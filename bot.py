@@ -11,23 +11,29 @@ ADMIN_ID = 6395195181
 INTERVAL_SECONDS = 2
 # ==============================================
 
-# فانکشنێک بۆ دروستکردنی ژمارەی کارتی LUHN-ڕاست
+# فانکشنێکی ڕاست و تەواو بۆ دروستکردنی ژمارەی کارتی LUHN (١٦ ڕقە)
 def generate_luhn_card(prefix):
-    # دروستکردنی ١٥ ژمارەی کۆتایی بە شێوەی هەڕەمەکی
-    card_number = [int(x) for x in str(prefix)] + [random.randint(0, 9) for _ in range(15 - len(str(prefix)))]
+    # دەستپێکی ژمارەکە
+    card = [int(x) for x in str(prefix)]
+    # زیادکردنی ژمارە هەڕەمەکییەکان تا دەگاتە ١٥ ڕقە (ئەمێکس ١٤)
+    length = 16 if prefix != 3 else 15
+    while len(card) < length - 1:
+        card.append(random.randint(0, 9))
     
-    # ڕێسای Luhn بۆ هەژماردنی ژمارەی کۆتایی (Check Digit)
-    for i in range(len(card_number) - 1, -1, -1):
-        if i % 2 == 0:
-            card_number[i] *= 2
-            if card_number[i] > 9:
-                card_number[i] -= 9
+    # هەژماردنی Check Digit بەپێی ڕێسای Luhn
+    total = 0
+    for i in range(len(card) - 1, -1, -1):
+        digit = card[i]
+        if (len(card) - i) % 2 == 0: # لە ڕاستەوە بۆ چەپ، دووەم ژمارە دوو هێندە دەبێت
+            digit *= 2
+            if digit > 9:
+                digit -= 9
+        total += digit
     
-    check_digit = (10 - (sum(card_number) % 10)) % 10
+    check_digit = (10 - (total % 10)) % 10
+    card.append(check_digit)
     
-    # گەڕاندنەوەی ژمارە تەواوەکە
-    full_card = str(prefix) + ''.join([str(random.randint(0, 9)) for _ in range(14 - len(str(prefix)))]) + str(check_digit)
-    return full_card
+    return ''.join(map(str, card))
 
 BANKS = [
     "JPMorgan Chase", "Bank of America", "Wells Fargo", "Citibank", "HSBC",
@@ -60,18 +66,18 @@ CARD_TYPES = [
 async def send_card_message(bot, channel, admin):
     card_type = random.choice(CARD_TYPES)
     
-    # دروستکردنی ژمارەی کارت بە LUHN و پێشگر (Prefix)
+    # دروستکردنی ژمارەی کارت بەپێی جۆرەکە
     if "VISA" in card_type:
-        card_number = generate_luhn_card(4) # Visa دەست پێدەکات بە 4
+        card_number = generate_luhn_card(4)
     elif "MASTERCARD" in card_type:
-        card_number = generate_luhn_card(5) # Mastercard دەست پێدەکات بە 5
-    else: 
-        card_number = generate_luhn_card(3) # Amex دەست پێدەکات بە 3
+        card_number = generate_luhn_card(5)
+    else:
+        card_number = generate_luhn_card(3) # AMEX پێویستی بە ١٥ ڕقەیە
 
     month = str(random.randint(1, 12)).zfill(2)
     year = str(random.randint(2026, 2036))
     cvv = str(random.randint(100, 999))
-    bin_number = card_number[:6] # BIN (6 ژمارەی سەرەتا)
+    bin_number = card_number[:6]
     
     bank = random.choice(BANKS)
     country = random.choice(COUNTRIES)
