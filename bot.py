@@ -1,59 +1,27 @@
-# -*- coding: utf-8 -*-
+from telethon import TelegramClient
 import asyncio
-import logging
-from telegram import Bot
-from telegram.error import TelegramError
 
-# ==================== ڕێکخستنەکان ====================
-# تۆکنی بۆتەکەت
-BOT_TOKEN = "8941847443:AAF78KW48MF93ntjK8ROGanD1TiEzc4O1_Q"
+# ========== ڕێکخستنەکان ==========
+api_id = 33790522
+api_hash = "00e4131295f55452e143c06099c1ddae"
+phone = "+96407504399022"
+# ===================================
 
-# کەناڵی سەرچاوە (ئەمە گۆڕدرا بۆ WarnisxCcScrap)
-SOURCE_CHANNEL = "@WarnisxCcScrap"
+SOURCE_CHANNEL = "@WarnisxCcScrap"   # کەناڵی سەرچاوە
+TARGET_CHANNEL = "@Cc428Kurd"        # کەناڵی خۆت
 
-# کەناڵی ئامانج (پەیامەکان دەنێردرێن بۆ ئەم کەناڵە)
-TARGET_CHANNEL = "@Cc428Kurd"
-
-# ماوەی چاوەڕوانی لە نێوان هەر پەیامێکدا
-INTERVAL_SECONDS = 3
-# ======================================================
-
-logging.basicConfig(level=logging.INFO)
-
-async def copy_and_send(bot, source, target):
-    try:
-        logging.info("⏳ چاوەڕوانی پەیامی نوێ...")
-        updates = await bot.get_updates()
-        
-        if updates and updates[-1].channel_post:
-            last_post = updates[-1].channel_post
-            logging.info(f"✅ پەیامێک دۆزرایەوە: {last_post.message_id}")
-            
-            if last_post.photo:
-                file_id = last_post.photo[-1].file_id
-                caption = last_post.caption or ""
-                await bot.send_photo(chat_id=target, photo=file_id, caption=caption)
-                logging.info(f"📸 وێنە + دەق نێردرا بۆ {target}!")
-            
-            elif last_post.text:
-                await bot.send_message(chat_id=target, text=last_post.text)
-                logging.info(f"📝 دەق نێردرا بۆ {target}!")
-            
-            else:
-                logging.warning("⚠️ پەیامەکە نە وێنەی تێدابوو نە دەق.")
-        else:
-            logging.info("📭 هیچ پەیامێکی نوێ نەدۆزرایەوە.")
-            
-    except TelegramError as e:
-        logging.error(f"❌ هەڵەی تەلەگرام: {e}")
-    except Exception as e:
-        logging.error(f"❌ هەڵەی گشتی: {e}")
+client = TelegramClient(phone, api_id, api_hash)
 
 async def main():
-    bot = Bot(token=BOT_TOKEN)
-    while True:
-        await copy_and_send(bot, SOURCE_CHANNEL, TARGET_CHANNEL)
-        await asyncio.sleep(INTERVAL_SECONDS)
+    await client.start()
+    print("✅ سەرکەوتووانە چووە ناوەوە!")
+    
+    async for message in client.iter_messages(SOURCE_CHANNEL, limit=1):
+        if message.text:
+            await client.send_message(TARGET_CHANNEL, message.text)
+            print(f"✅ پەیام کۆپی کرا بۆ {TARGET_CHANNEL}!")
+        elif message.photo:
+            await client.send_file(TARGET_CHANNEL, message.photo, caption=message.caption)
+            print(f"✅ وێنە کۆپی کرا بۆ {TARGET_CHANNEL}!")
 
-if __name__ == "__main__":
-    asyncio.run(main())
+asyncio.run(main())
