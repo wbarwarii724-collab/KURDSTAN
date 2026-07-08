@@ -9,9 +9,11 @@ BOT_TOKEN = "8839560847:AAF3IeRKYVerZUUHYV_ZgfItdm4BPEhcBYk"
 CHANNEL_ID = "@CC428Kurd"
 ADMIN_ID = 6395195181
 INTERVAL_SECONDS = 2
+
+# ڕێگای وێنەکە (وێنەی ئاسمان)
+IMAGE_URL = "https://raw.githubusercontent.com/CC428Kurd/KURDISTAN/main/sky.jpg"
 # ==============================================
 
-# داتابەیس بۆ بانک و وڵاتەکان
 BIN_DATABASE = {
     "410282": {"bank": "JPMorgan Chase Bank", "country": "USA 🇺🇸"},
     "408139": {"bank": "Bank of America", "country": "USA 🇺🇸"},
@@ -106,7 +108,6 @@ def get_card_details(card_number):
     else:
         return {"bank": "Unknown Bank", "country": "Unknown 🌍"}
 
-# خوێندنەوەی کارتەکان
 try:
     if os.path.exists('cards.txt'):
         with open('cards.txt', 'r', encoding='utf-8') as f:
@@ -127,7 +128,6 @@ async def send_card_message(bot, channel, admin):
         await bot.send_message(chat_id=admin, text="❌ No cards found in file.")
         return False
     
-    # گەیشتینە کۆتایی کارتەکان -> وەستانی بۆتەکە
     if current_index >= len(RAW_CARDS):
         await bot.send_message(chat_id=admin, text="✅ All cards sent! Bot is stopping now.")
         print("✅ All cards sent successfully.")
@@ -151,25 +151,21 @@ async def send_card_message(bot, channel, admin):
     country = details['country']
     bin_num = card_number[:6]
     
-    # فۆرماتی نوێ بەپێی وێنەکە (گۆڕانکاری لە ناو و دەقدا)
+    # فۆرماتی دەق (ناوەکان گۆڕدراون)
     text = (
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"● WARVEN\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"ADMINI SARMAD\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"BERWARII\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"● CC: {card_number} | {month}/{year} | {cvv}\n"
-        f"● BIN: {bin_num}\n"
-        f"● Bank: {bank}\n"
-        f"● Country: {country}\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"Developed By @warven_24"
+        f"KURD SCRAPPER\n"
+        f"------------------------\n"
+        f"Card : {card_number} | {month}/{year} | {cvv}\n"
+        f"________________________\n"
+        f"Info : MASTERCARD - CREDIT - STANDARD\n"
+        f"Bank : {bank}\n"
+        f"Country : {country}\n"
+        f"------------------------\n"
+        f"▷ Developed by: @warven_24 & rojAmedi2"
     )
 
     try:
-        await bot.send_message(chat_id=channel, text=text)
+        await bot.send_photo(chat_id=channel, photo=IMAGE_URL, caption=text)
         await bot.send_message(chat_id=admin, text=f"✅ Sent ({current_index+1}/{len(RAW_CARDS)})")
         print(f"✅ Sent: {card_number}")
         
@@ -190,7 +186,7 @@ async def main():
     while True:
         result = await send_card_message(bot, CHANNEL_ID, ADMIN_ID)
         if not result:
-            break  # وەستانی بۆتەکە دوای ناردنی هەموو کارتەکان
+            break
         await asyncio.sleep(INTERVAL_SECONDS)
 
 if __name__ == "__main__":
